@@ -1,14 +1,92 @@
-# ArogyaGuard AI — Team RITAM · Hybrid RAG V3
+# ArogyaGuard AI
 
-**LLM-driven maternal-health multi-agent assistant for ASHA workers in India**  
-**New in V3:** semantic embeddings + persistent local **Qdrant**, alongside **SQLite FTS5/BM25**. Retrieval results are combined using **reciprocal-rank fusion (RRF)**; extracted PDF pages retain source and page attribution. Original OpenRouter agent-planning and governance workflows remain in place.
+**Connecting frontline maternal care with trusted government guidance**  
+**Team RITAM | AI for Good Lab Hackathon, UAE 2026 | Country focus: India**
 
-> **Prototype only.** Synthetic patient scenarios only. This is not clinical advice, a clinical triage system or an official Government of India service. A human health professional must verify referral and medical decisions.
+ArogyaGuard AI is a multilingual, multi-agent research prototype designed to help India's frontline healthcare workers find and interpret maternal-health information from official government sources. It combines document retrieval, LLM-driven agent orchestration, evidence references, and a human-led approach to referral and follow-up.
 
-## A. Install and run from VS Code (Windows)
+> [!IMPORTANT]
+> **Research and demonstration prototype only.** ArogyaGuard AI is **not** a clinically validated medical device, diagnostic system, emergency service, or official government service. It must not replace professional medical assessment. Use **synthetic scenarios only**; do not enter identifiable patient information.
 
-1. **Stop the old V2 app with Ctrl+C.** Extract this ZIP and in VS Code open the `ArogyaGuard_AI_RITAM_Hybrid_RAG_V3` folder.
-2. Open **Terminal → New Terminal**. Run:
+## The problem
+
+Accredited Social Health Activists (**ASHAs**) and Auxiliary Nurse Midwives (**ANMs**) support families in accessing maternal healthcare. Relevant guidance is spread across government documents and programmes covering antenatal care, pregnancy danger signs, transport entitlements, high-risk follow-up, and respectful maternity care. Finding the right information quickly, including in a familiar language, can be difficult.
+
+**ArogyaGuard AI aims to connect those sources in one understandable, source-aware response.** Its purpose is to support informed human action, not to automate clinical decisions or claim that a person is eligible for benefits without evidence.
+
+## What the prototype provides
+
+- **Natural-language questions** through a web interface, with text and browser-dependent voice features.
+- **Four languages:** English, Hindi, Telugu, and Kannada.
+- **LLM-first routing:** an orchestrator chooses relevant agents from the user's question instead of asking the user to select an agent manually.
+- **Multi-agent synthesis:** guidance, benefits, and follow-up findings can be combined into one response, with a governance review stage.
+- **Government-document retrieval:** local SQLite FTS5/BM25 search and optional semantic search with multilingual embeddings and Qdrant.
+- **Evidence visibility:** document references, page attribution where PDF pages have been indexed, and agent activity or execution traces where available.
+- **Safety-oriented behavior:** urgent maternal danger signs should prompt timely professional medical assessment rather than an AI-generated diagnosis.
+
+Feature availability and quality depend on the local setup, indexed documents, language, browser, and model response. These capabilities are **not claims of clinical accuracy or deployment readiness**.
+
+## Multi-agent architecture
+
+| Agent | Responsibility |
+| --- | --- |
+| **Maternal Guidance & Referral** | Locate information about antenatal care, pregnancy warning signs, and appropriate human referral. |
+| **Benefits** | Retrieve available government guidance on programmes such as JSSK, including transport support and eligibility caveats. |
+| **Follow-up** | Address missed antenatal visits, high-risk pregnancy monitoring, and continuity-of-care responsibilities. |
+| **Governance** | Bring findings together, check available evidence references and scope, and communicate uncertainty and safeguards. |
+
+An **LLM-based orchestrator** determines which specialist agents are relevant. Not every question needs every specialist. The governance stage helps produce one consolidated response. A separate conservative warning mechanism may surface urgent danger-sign guidance, but agent selection is intended to be dynamic rather than based only on keyword matching.
+
+```text
+Question (text / voice)
+        |
+        v
+   Safety awareness
+        |
+        v
+ LLM scope + agent planning
+        |
+        +----> Maternal Guidance & Referral --+
+        +----> Benefits -----------------------+--> Governance --> One response
+        +----> Follow-up ----------------------+       |           + evidence
+                                                   Retrieved      + agent trace
+Official NHM documents --> SQLite FTS5/BM25 -------+ sources
+                          + optional local embeddings
+                            and Qdrant vector search
+```
+
+**Known routing limitation:** A specialist may respond correctly to an independent question but still be missed in a compound question. For example, a combined urgent referral, transport, and missed-appointment scenario has not consistently invoked the Follow-up Agent. This is an identified orchestration-evaluation gap, not a verified all-agent demonstration.
+
+## Technology
+
+| Layer | Implementation |
+| --- | --- |
+| Web application | Python, FastAPI, HTML, CSS, JavaScript |
+| AI orchestration and reasoning | OpenRouter with `openai/gpt-4o-mini` (configurable) |
+| Document parsing | `pypdf`; optional Tesseract OCR for scanned PDFs |
+| Lexical retrieval | SQLite FTS5 / BM25 |
+| Semantic retrieval | `intfloat/multilingual-e5-small` embeddings |
+| Vector storage | Qdrant in local persistent mode |
+| Hybrid ranking | Reciprocal Rank Fusion (RRF) of lexical and semantic results |
+| Voice | Browser speech recognition and speech synthesis, subject to browser support |
+
+The application runs on a local computer, but **OpenRouter inference requires internet access**. Initial software installation, document download, and first embedding-model download may also need internet. It is **not a fully offline or edge-deployed system**.
+
+## Run locally
+
+These instructions describe the **Hybrid RAG V3 codebase**, including the V3.1 scope-handling patch when applied. If your repository contains a different application version, align the commands and feature descriptions with that version before publishing.
+
+### Prerequisites
+
+- Python **3.10+** and `pip`.
+- An OpenRouter API key for LLM-based agent routing and response generation.
+- Internet access for dependencies, the model API, and downloading official documents.
+- Optional: Tesseract OCR for scanned government PDFs.
+- A supported browser; Chrome or Edge is recommended for testing voice features.
+
+### Windows (PowerShell)
+
+Open a terminal in the folder containing `run.py`:
 
 ```powershell
 py -m venv .venv
@@ -17,152 +95,134 @@ py -m venv .venv
 Copy-Item .env.example .env
 ```
 
-3. Open `.env` and enter your existing `OPENROUTER_API_KEY`. Keep `AROGYA_VECTOR_ENABLED=true`. Set `OPENROUTER_MODEL=openai/gpt-4o-mini` unless you already selected another compatible model.
-4. Start:
+Open `.env` and replace the placeholder with your **own** key:
+
+```dotenv
+OPENROUTER_API_KEY=YOUR_OWN_OPENROUTER_KEY
+OPENROUTER_MODEL=openai/gpt-4o-mini
+AROGYA_VECTOR_ENABLED=true
+```
+
+Start the application:
 
 ```powershell
 .venv\Scripts\python.exe run.py
 ```
 
-5. Open <http://127.0.0.1:8000>. **No Docker, Qdrant cloud key, paid embedding API, Node.js or npm needed.** Qdrant runs in *persistent embedded local mode* in `data/qdrant/`.
+Then open **http://127.0.0.1:8000**.
 
-**First embedding setup:** The `intfloat/multilingual-e5-small` model downloads from Hugging Face on first actual embedding operation. You need internet, sufficient disk space and CPU memory. The downloaded model runs locally after the download. The model is separate from the OpenRouter LLM. If installing `sentence-transformers` fails, check your Python version and PyTorch compatibility and install a supported version; the app can still run lexical search while semantic setup is unresolved.
+You may also use `start_windows.bat` after configuring the environment. The supplied launcher simplifies startup, but you may still need to install the separate hybrid dependencies shown above.
 
-## B. Keep your already indexed V2 PDFs — do not start over
+### macOS / Linux
 
-The V2 database contains the indexed text/passages, page numbers and SQLite FTS5 keyword index. **Qdrant will not automatically contain them until you build vectors.** Do this while **both servers are stopped**:
-
-```powershell
-# Run from the new V3 folder (replace the example with the actual OLD project path)
-.venv\Scripts\python.exe -m scripts.migrate_v2 --source "C:\Projects\ArogyaGuard_AI_RITAM_Agentic_V2" --replace
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
+.venv/bin/python -m pip install -r requirements-hybrid.txt
+cp .env.example .env
+# Edit .env and provide your own OPENROUTER_API_KEY.
+.venv/bin/python run.py
 ```
 
-The script makes a backup before replacing a destination database, copies old `data/official_pdfs/` when present, **never copies `.env` or your API key**, and keeps the V2 database intact. If the V3 database doesn't exist yet, omit `--replace`. If you have already indexed some V3 PDFs, back up both databases and choose which one to preserve before replacing.
+Open **http://127.0.0.1:8000**. Do not commit `.env` or paste a real API key into the README, source code, screenshots, or logs.
 
-Or manually, with both servers stopped: copy **V2** `data/knowledge.sqlite3` → **V3** `data/knowledge.sqlite3` and copy the `data/official_pdfs` folder. Do not copy Python source files from the old version on top of V3.
+### Set up the document knowledge base
 
-**Check what migrated:** `http://127.0.0.1:8000/api/sources`. The PDF `indexed_chunks` values should reflect your prior indexed content. Documents showing 0 (e.g., JSSK in your screenshot) still require original PDF ingestion and possibly OCR.
+1. Open the application's **Evidence Library**.
+2. Download and index the available, approved official NHM documents. Indexing is required for page-based PDF evidence.
+3. For scanned PDFs with no extractable text, install the dependencies from `requirements-ocr.txt` and the Tesseract executable, then re-index. OCR output requires verification.
+4. Use **Build semantic index** to generate local embeddings and populate Qdrant. Semantic search is **not ready merely because PDF text has been indexed**.
+5. Check **http://127.0.0.1:8000/api/status** for the actual model and retrieval status.
 
-## C. Build the new semantic index (essential new step)
-
-After your PDFs are indexed/migrated, go to **Evidence Library → Build semantic index**. This will convert every actual indexed PDF passage in SQLite into a vector using the local multilingual model and store it in Qdrant.
-
-Alternatively **stop the V3 server first** (Qdrant local mode locks its directory), then run this command from the V3 project folder:
+To build vectors with the app stopped:
 
 ```powershell
 .venv\Scripts\python.exe -m scripts.build_vectors
 ```
 
-You should see `passages_embedded` > 0 and a list of document IDs. Then visit <http://127.0.0.1:8000/api/status>. The `retrieval` object should contain:
+If semantic retrieval is unavailable or not indexed, the application may operate with lexical search only. Do not claim that hybrid retrieval is active without confirming the status. The project should not commit downloaded PDFs, local SQLite data, Qdrant storage, or embedding-model caches.
 
-```json
-{
-  "mode": "hybrid",
-  "ready": true,
-  "vector_count": 499,
-  "embedding_model": "intfloat/multilingual-e5-small"
-}
-```
-
-`499` is **an illustrative example**, NOT a precomputed count. The actual number depends on your documents. If `mode` is `lexical_only`, `not_indexed`, `needs_rebuild` or `unavailable`, semantic search is not working yet and only FTS5 is active. No vector counts are fabricated. The initial package contains **no pretrained weights, Qdrant collection, downloaded government PDFs or patient information**.
-
-### JSSK document still at zero? Enable OCR
-
-The original JSSK PDF failed because pypdf extracted no usable text. V3 integrates a **Tesseract OCR fallback** from the prior patch. Also install:
+### Run tests
 
 ```powershell
-.venv\Scripts\python.exe -m pip install -r requirements-ocr.txt
+.venv\Scripts\python.exe -m pip install pytest
+.venv\Scripts\python.exe -m pytest -q
 ```
 
-Then install **Tesseract OCR for Windows** separately and add it to PATH, or set this in `.env` (adjust location if needed):
+Automated tests, including simulated LLM behavior, **do not prove** live-model reliability, clinical safety, or equal performance in different languages.
 
-```dotenv
-TESSERACT_CMD=C:\Program Files\Tesseract-OCR\tesseract.exe
-AROGYA_OCR_ENABLED=true
-```
+## Demonstration questions
 
-Restart the server. In **Evidence Library**, click **Index official PDF** on JSSK. It first downloads and extracts verified official PDF pages and then, if Qdrant has already been initialized, attempts to generate that document's embeddings. If text/OCR succeeds but semantic indexing fails, the app returns an explicit `semantic_warning`, and the valid SQLite passages remain usable. After any successful PDF index, you can click **Build semantic index** again to ensure new chunks are embedded.
+Use synthetic examples and inspect the actual response and agent trace. The agent combinations below describe **intended behavior**, not guaranteed test outcomes.
 
-## D. What runs where?
+| Scenario | Example question | Intended behavior |
+| --- | --- | --- |
+| Routine antenatal care | "What should an ASHA worker explain during a routine antenatal visit?" | Maternal Guidance and Governance |
+| Urgent warning signs | "A woman who is eight months pregnant has a severe headache and blurred vision. What should I do?" | Prompt urgent human medical assessment; do not diagnose |
+| Government support | "What transport support does JSSK provide for eligible pregnant women?" | Benefits and Governance, with source-based caveats |
+| Missed follow-up | "A high-risk pregnant woman missed her antenatal follow-up. How should the ASHA worker coordinate continued care?" | Follow-up and Governance |
+| Combined scenario | "Lakshmi is eight months pregnant, has a severe headache and blurred vision, missed a high-risk follow-up, and cannot afford transport. What urgent referral, verified transport information, and follow-up steps should the ASHA worker consider?" | Ideally Maternal Guidance, Benefits, Follow-up, and Governance; **check the real trace** |
+| Out-of-scope control | "Who is Virat Kohli?" | A respectful out-of-scope response |
 
-```text
-Approved NHM PDFs only
-    ↓ HTTP download → pypdf text extraction → Tesseract OCR if scanned
-Page-preserving chunking (~1050 characters; 180 overlap)
-    ↓
-    SQLite passages + FTS5 / BM25  ←→ multilingual-e5-small (local embedding model)
-                                          ↓
-                                    Qdrant persistent vectors
-    ↓                                   ↓
-    Lexical top results              Semantic top results
-                       ↘        ↙
-                   RRF rank fusion
-                         ↓
-Question → OpenRouter LLM Planner (scope + which agents + retrieval queries)
-             ↓
-    Maternal Guidance / Benefits / Follow-up (parallel, selected by LLM)
-             ↓
-    OpenRouter LLM Governance (evidence ID checks, synthesis)
-             ↓
-    ONE answer + cited government excerpts + optional execution trace
-```
+Severe headache with blurred vision during pregnancy is a potential warning sign. **Urgent assessment takes precedence over benefit lookups or routine follow-up planning.**
 
-OpenRouter is used for **routing, specialist reasoning and answer synthesis**, not document embedding or PDF OCR. The embedding model creates numeric vectors locally; Qdrant stores and searches them. RRF combines ranked lists; this is **not a trained cross-encoder reranker**. For Indian languages, the model supports multilingual retrieval but performs worse in some low-resource languages; run retrieval tests for Telugu and Kannada rather than claiming proven accuracy. LLM-generated English search queries may help when source PDFs are in English, but the index also supports multilingual queries.
+## Policy and standards gap analysis
 
-### Components
+The hackathon explores not only whether an AI prototype works, but also what is required for responsible public-sector deployment.
 
-| Component | Implementation |
-|---|---|
-| Professional app | FastAPI + HTML / CSS / JavaScript |
-| Chat and language interface | English / Hindi / Telugu / Kannada; browser voice subject to browser support |
-| AI agent planning | OpenRouter GPT-4o-mini, JSON schema validation |
-| Specialist execution | Python asyncio, optional LangGraph adapter |
-| Governance | LLM synthesis with verifiable citation ID filtering, NOT clinical fact validation |
-| Approved source registry | `arogyaguard/catalog.py` |
-| PDF extract + OCR | `arogyaguard/knowledge.py` |
-| Lexical retrieval | SQLite FTS5 / BM25 |
-| Semantic embedding | `intfloat/multilingual-e5-small`, local CPU with required `query:` / `passage:` prefixes |
-| Vector DB | Qdrant embedded local mode, persistent in `data/qdrant/` |
-| Rank fusion | RRF over lexical / semantic candidates in `arogyaguard/hybrid.py` |
-| Vector migration and CLI | `scripts/migrate_v2.py`, `scripts/build_vectors.py` |
+**Observed prototype challenges:**
 
-## E. Verify technically
+- **Incorrect scope classification:** some legitimate SUMAN respectful-care and Extended PMSMA questions were initially rejected as out of scope; a V3.1 patch introduced a second LLM review of proposed rejections.
+- **Incomplete policy evidence:** scanned or difficult-to-extract documents, including JSSK material, can leave the knowledge base incomplete.
+- **Unverifiable entitlement details:** the application must not invent a payment amount, approval authority, or state-specific benefit when the indexed source does not establish it.
+- **Agent-routing inconsistency:** compound questions can omit a relevant specialist even when it works independently.
+- **Language consistency:** English has appeared more consistent in informal testing; four-language parity has not been established.
 
-- **App health:** `GET /api/status` — `retrieval.mode` and real Qdrant count.
-- **Government source list:** `GET /api/sources` — per-document `indexed_chunks` (PDF text) vs `vector_chunks` (semantic).
-- **Rebuild semantic index:** `POST /api/vectors/build` or `python -m scripts.build_vectors`.
-- **Index one approved document:** `POST /api/sources/{document_id}/sync`.
-- **Ask natural questions:** `POST /api/ask` or Care Assistant. The optional **Agent activity → View execution trace** shows LLM-selected agents, evidence count, retrieval mode and Governance.
-- **Tests:** `.venv\Scripts\python.exe -m pytest -q` after installing `pytest`; local tests use fake LLMs or fake semantic retrievers, and do NOT prove live model quality.
+**Candidate policy and standards needs identified by the project:** machine-readable policy updates and state applicability; clear document provenance and versioning; standardized maternal-health topics; safe escalation and human oversight; transparent uncertainty; and structured multilingual evaluation. These are research findings and recommendations, **not a claim that every prototype bug represents a formal standards violation**.
 
-Example questions:
-- "What does an ASHA worker explain during routine antenatal visits?"
-- "Under JSSK, can a pregnant woman get free transportation to a government hospital?"
-- "Lakshmi has blurred vision and severe headache, missed follow-up and cannot afford transport. What should I do?"
-- "Who is Virat Kohli?" (should be rejected as out of scope)
+The accompanying hackathon submission discusses these gaps through the ITU-T Y.3172 / AI Readiness 2.0 framing.
 
-## F. Safety and deployment boundaries
+## Government information sources
 
-- This hackathon version is **not an approved medical decision support tool**. LLM answers may be incomplete, wrongly retrieved or incorrect despite valid citation IDs; validation of each claim against sources remains important.
-- A conservative, independent urgent symptom warning is shown before LLM calls; it does not provide definitive diagnosis/triage.
-- Real identifiable patient information must not be sent to OpenRouter without proper authorization, privacy assessment and safeguards. The example app is for **synthetic cases only**.
-- Indexed NHM documents are subject to their original copyright and government licensing terms; the ZIP does not redistribute them.
-- OCR may misread numbers, eligibility details and negations; assess sample pages manually and prioritize quality checks before use.
-- Changes in JSSK, PMSMA or state implementation may not be reflected in locally indexed versions. This is a local snapshot, not AutoSync. AutoSync remains future scope.
-- Cross-domain agent reusability is a **design goal**, not a validated ability to solve any government domain by swapping PDFs alone.
-- For larger deployments, migrate embedded Qdrant to its server mode. Do not run multiple local-mode app processes against one Qdrant directory.
+The document catalogue is based on official **National Health Mission (NHM)** resources, including materials related to:
 
-## G. Troubleshooting
+- ASHA maternal-health guidance.
+- **JSSK:** Janani Shishu Suraksha Karyakram.
+- **PMSMA:** Pradhan Mantri Surakshit Matritva Abhiyan and related high-risk pregnancy guidance.
+- **SUMAN:** Surakshit Matritva Aashwasan, including respectful maternity care.
 
-| Observation | Action |
-|---|---|
-| `model_ready: false` | Check `.env` and restart; OpenRouter key isn't detected |
-| `retrieval.mode: not_indexed` or `needs_rebuild` | PDFs indexed in SQLite but no vectors built; run `python -m scripts.build_vectors` |
-| `retrieval.mode: unavailable` | Read `retrieval.message`; install missing dependencies or fix Qdrant local folder access |
-| JSSK PDF `0 indexed` | Install Tesseract and OCR requirements; re-index official PDF |
-| `No indexed PDF passages found` | Index or migrate source PDFs first; curated summaries are not embedded by default |
-| Embedding model cannot load | Check internet first download / Hugging Face access and memory |
-| Qdrant path locked | Stop the other ArogyaGuard processes; use one server process |
-| Answer has weak citations | Inspect source PDF page and test retrieval; vector search improves recall, not truthfulness by itself |
+Start at the [National Health Mission website](https://nhm.gov.in/). The application must verify the actual official source, document version, relevant state, and effective conditions before relying on a specific entitlement. Linked government material is **not** automatically licensed for redistribution under this repository's code license.
 
-**Docs:** [Qdrant local mode](https://github.com/qdrant/qdrant-client#local-mode) · [E5 model card](https://huggingface.co/intfloat/multilingual-e5-small) · [NHM government portal](https://nhm.gov.in/)
+## Limitations and safeguards
+
+- Research prototype only; **no diagnosis, prescriptions, ambulance dispatch, or autonomous case decisions**.
+- Human healthcare professionals and authorized services remain responsible for assessment, referral, eligibility decisions, and patient follow-up.
+- A citation reference does not guarantee that a model's interpretation is correct. Check the actual source and its applicability.
+- Policies and state-level programme implementation can change. This prototype does not automatically keep its entire knowledge base current.
+- Voice recognition and speech output depend on browser, operating system, and language availability.
+- Do not enter, upload, or transmit identifiable patient information. When OpenRouter is enabled, questions can be sent to an external model provider.
+- Do not commit `.env`, credentials, downloaded patient records, private logs, local databases, or generated vector storage.
+
+## Future directions
+
+- **Knowledge Update Agent (proposed):** monitor official government sources, detect relevant policy changes, and support **human-verified** knowledge-base updates. **Not implemented as a fifth agent in the current prototype.**
+- More systematic multi-agent routing tests, including compound questions.
+- Better OCR/document completeness checks and source-version tracking.
+- Comparative evaluation of response quality and safety in all four supported languages.
+- Reuse of the core orchestration and retrieval framework for **education, agriculture, or other public-service domains**, with new documents, agent responsibilities, safeguards, and evaluations.
+
+## Demo video
+
+**YouTube demonstration:** Link will be added after the final demo is published.
+
+## Team
+
+**RITAM**  
+**Rohith D** — Team Lead  
+**Sanjana Daivanga** — Team Member
+
+Developed for the **AI for Good Lab Hackathon, UAE 2026**.
+
+## License
+
+The source code is intended to be published under the **MIT License**. See [`LICENSE`](LICENSE) once it has been added to the repository. Third-party dependencies, model weights, and government publications retain their own terms.
