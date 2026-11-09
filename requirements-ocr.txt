@@ -1,0 +1,4 @@
+# OCR is optional; also install Tesseract OCR (Windows executable), not just Python modules.
+PyMuPDF>=1.24,<2
+pytesseract>=0.3.13,<1
+Pillow>=10,<13

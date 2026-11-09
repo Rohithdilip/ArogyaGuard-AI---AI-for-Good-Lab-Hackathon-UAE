@@ -1,0 +1,502 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101f2a">
+  <title>ArogyaGuard AI — Team RITAM</title>
+  <link rel="stylesheet" href="/web/styles.css">
+</head>
+
+<body>
+<div class="shell">
+
+  <aside class="sidebar">
+    <a href="#" class="logo" aria-label="ArogyaGuard AI home">
+      <div class="brand-mark">
+        <svg viewBox="0 0 32 32" fill="none">
+          <path d="M16 2 28 7v9c0 8-5 12-12 15C9 28 4 24 4 16V7L16 2Z"
+            stroke="currentColor" stroke-width="1.7"/>
+          <path d="M7 17h5l4-6 3 11 3-5h3"
+            stroke="currentColor" stroke-width="2.2"
+            stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div>
+        <strong>ArogyaGuard <em>AI</em></strong>
+        <span>TEAM RITAM · INDIA</span>
+      </div>
+    </a>
+
+    <div class="sidebar-section">WORKSPACE</div>
+
+    <nav class="navigation" aria-label="Workspace sections">
+      <button class="nav-link selected" data-view="assistant">
+        <span class="nav-ico">✳</span>
+        Care assistant
+        <span class="nav-mark"></span>
+      </button>
+
+      <button class="nav-link" data-view="library">
+        <span class="nav-ico">▤</span>
+        Evidence library
+      </button>
+
+      <button class="nav-link" data-view="architecture">
+        <span class="nav-ico">⎔</span>
+        Agent architecture
+      </button>
+    </nav>
+
+    <div class="sidebar-tail">
+      <div class="safety-status">
+        <span class="live-dot"></span>
+        <div>
+          <strong>Research environment</strong>
+          <p>Human oversight · Synthetic data</p>
+        </div>
+      </div>
+
+      <div class="team-avatar">
+        <span>RD</span>
+        <div>
+          <strong>Team RITAM</strong>
+          <p>AI for Good Lab Hackathon · India Health Care Use Case</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <header class="topbar">
+      <div class="breadcrumb">
+        AG AI PLATFORM <span>/</span>
+        <b id="crumb">CARE ASSISTANT</b>
+      </div>
+
+      <div class="top-right">
+        <span class="top-location">MATERNAL HEALTH · INDIA</span>
+        <span class="environment">
+          <i></i> WORKING PROTOTYPE
+        </span>
+      </div>
+    </header>
+
+    <!-- CARE ASSISTANT VIEW -->
+    <section id="assistant-view" class="view">
+
+      <div class="top-intro">
+        <div>
+          <div class="kicker">EVIDENCE-LED • HUMAN-CENTRED</div>
+
+          <h1>
+            The right guidance.
+            <br>
+            <em>At the right moment.</em>
+          </h1>
+<div class="hackathon-label">
+  <span>✦</span>
+  AI for Good Lab Hackathon · UAE
+</div>
+          <p>
+            One question. The right specialist agents.
+            One source-grounded response for frontline maternal care.
+          </p>
+        </div>
+
+        <div class="top-art" aria-hidden="true">
+          <svg viewBox="0 0 280 190" fill="none">
+            <circle cx="143" cy="96" r="75"
+              stroke="#BCF8E7" stroke-opacity=".19"/>
+            <circle cx="143" cy="96" r="56"
+              stroke="#BCF8E7" stroke-opacity=".32"/>
+            <circle cx="143" cy="96" r="37"
+              fill="#B8FFE5" fill-opacity=".09"
+              stroke="#B8FFE5" stroke-opacity=".55"/>
+            <path d="M92 96h31l12-19 16 37 11-19h33"
+              stroke="#A6F4D4" stroke-width="3"
+              stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="45" cy="44" r="5" fill="#FFD8A4"/>
+            <circle cx="234" cy="149" r="6" fill="#C6BEFA"/>
+            <path d="m45 44 62 38M234 149l-47-32"
+              stroke="#fff" stroke-opacity=".21"
+              stroke-dasharray="3 6"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="fact-strip">
+        <div>
+          <strong>04</strong>
+          <span>Specialist agents</span>
+        </div>
+
+        <i></i>
+
+        <div>
+          <strong>04</strong>
+          <span>Supported languages</span>
+        </div>
+
+        <i></i>
+
+        <div>
+          <strong>Knowledge Base</strong>
+          <span>Official National Healthcare Mission (NMH) Docs</span>
+        </div>
+
+        <div class="rightnote"></div>
+      </div>
+
+      <div class="primary-grid">
+
+        <section class="conversation panel">
+
+          <div class="panel-header">
+            <div>
+              <span class="section-index">01 / INTELLIGENT ASSISTANT</span>
+              <h2>Ask ArogyaGuard</h2>
+              <p>
+                Ask naturally. Our orchestrator decides what evidence
+                and agents are needed.
+              </p>
+            </div>
+
+            <span class="semantic-pill">✧ AGENT BASED ROUTING</span>
+          </div>
+
+          <div id="chat" class="chat-feed" aria-live="polite">
+            <div class="assistant-bubble hello">
+              <div class="bubble-icon">✳</div>
+              <div>
+                <small>AROGYAGUARD AI</small>
+
+                <p>
+                  Namaste. I can help with maternal-health questions,
+                  ANC guidance, danger signs, government benefits
+                  and follow-up responsibilities. What would you like to know?
+                </p>
+
+                <span>
+                  Answers are grounded in configured NHM sources
+                  and checked for appropriate human oversight.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="composer-wrap">
+
+            <div class="composer-caption">
+              <span class="green-spark"></span>
+              ASK IN YOUR OWN WORDS
+            </div>
+
+            <textarea
+              id="question"
+              rows="3"
+              placeholder="e.g. A pregnant woman has severe headache and blurry vision, missed her ANC visit, and cannot afford transport. What should the ASHA do?"
+            ></textarea>
+
+            <div class="compose-footer">
+
+              <div class="compose-tools">
+
+                <select id="language" aria-label="Question and response language">
+                  <option value="en">English</option>
+                  <option value="hi">हिन्दी</option>
+                  <option value="te">తెలుగు</option>
+                  <option value="kn">ಕನ್ನಡ</option>
+                </select>
+
+                <select
+                  id="state"
+                  aria-label="Policy state context"
+                  title="State for programme applicability"
+                >
+                  <option>Telangana</option>
+                  <option>Karnataka</option>
+                  <option>Andhra Pradesh</option>
+                  <option>Tamil Nadu</option>
+                  <option>Uttar Pradesh</option>
+                  <option>Maharashtra</option>
+                  <option>India-wide / verify locally</option>
+                </select>
+
+                <button id="mic" title="Speak your question (supported browsers)">
+                  ♬ <span>Speak</span>
+                </button>
+
+                <button id="clear" title="New conversation">
+                  ↻ <span>New chat</span>
+                </button>
+
+              </div>
+
+              <button id="send" class="send-btn">
+                Ask ArogyaGuard <span>↗</span>
+              </button>
+
+            </div>
+          </div>
+
+          <div class="question-examples">
+            <div class="examples-top">
+              START WITH A QUESTION
+              <span>OR ASK ANY MATERNAL-HEALTH QUESTION</span>
+            </div>
+
+            <div class="examples" id="examples">
+
+              <button data-question="What should an ASHA worker explain during routine antenatal care?">
+                Routine ANC guidance <span>↗</span>
+              </button>
+
+              <button data-question="A woman has severe headache and blurred vision, missed her check-up and needs free transport. What should I do?">
+                Complex referral case <span>↗</span>
+              </button>
+
+              <button data-question="What JSSK transport benefits are available for pregnant women?">
+                JSSK transport <span>↗</span>
+              </button>
+
+              <button data-question="Who is Virat Kohli?">
+                Try an out-of-scope question <span>↗</span>
+              </button>
+
+            </div>
+          </div>
+
+        </section>
+
+        <!-- LIVE INTELLIGENCE PANEL -->
+        <aside class="inspector">
+
+          <div class="panel intelligence">
+
+            <div class="section-index">02 / LIVE INTELLIGENCE</div>
+
+            <h2>Agent activity <span>⟡</span></h2>
+
+            <p>
+              Behind the scenes, your question determines the specialist
+              workflow. Each result is reviewed before the answer is displayed.
+            </p>
+
+            <div class="agent-stack" id="agent-stack">
+
+              <div class="agent-line" data-agent="guidance">
+                <span class="agent-bubble green">01</span>
+                <div>
+                  <strong>Maternal guidance</strong>
+                  <small>ANC · warning signs · referral</small>
+                </div>
+                <span class="agent-status">Standby</span>
+              </div>
+
+              <div class="connector"></div>
+
+              <div class="agent-line" data-agent="benefits">
+                <span class="agent-bubble gold">02</span>
+                <div>
+                  <strong>Benefits</strong>
+                  <small>JSSK · transport · entitlements</small>
+                </div>
+                <span class="agent-status">Standby</span>
+              </div>
+
+              <div class="connector"></div>
+
+              <div class="agent-line" data-agent="followup">
+                <span class="agent-bubble lavender">03</span>
+                <div>
+                  <strong>Follow-up</strong>
+                  <small>High-risk ANC · care continuity</small>
+                </div>
+                <span class="agent-status">Standby</span>
+              </div>
+
+              <div class="connector"></div>
+
+              <div class="agent-line" data-agent="governance">
+                <span class="agent-bubble blue">04</span>
+                <div>
+                  <strong>Governance</strong>
+                  <small>Evidence · scope · accountability</small>
+                </div>
+                <span class="agent-status">Standby</span>
+              </div>
+
+            </div>
+
+            <details class="trace-details">
+              <summary>View execution trace</summary>
+              <div id="trace">
+                Run a question to see agent routing and evidence counts.
+              </div>
+            </details>
+
+          </div>
+
+          <!-- TRUSTED FOUNDATION -->
+          <div class="source-summary panel">
+
+            <div class="section-index">03 / TRUSTED FOUNDATION</div>
+
+            <h3>Evidence readiness</h3>
+
+            <div class="readiness">
+              <span class="readiness-number" id="source-count">—</span>
+
+              <div>
+                <strong>PDF passages indexed</strong>
+                <small id="evidence-status">
+                  Checking local knowledge...
+                </small>
+              </div>
+            </div>
+
+            <button id="go-library" class="link-button">
+              Review government documents <span>↗</span>
+            </button>
+
+          </div>
+
+          <div class="disclaimer-card">
+            <span>✦</span>
+            <strong>Built for safe support</strong>
+            <p>
+              No AI diagnosis, prescriptions, real patient records
+              or automatic ambulance dispatch. Urgent assessment
+              remains human-led.
+            </p>
+          </div>
+
+        </aside>
+      </div>
+    </section>
+
+    <!-- EVIDENCE LIBRARY VIEW -->
+    <section id="library-view" class="view hidden">
+
+      <div class="page-head">
+        <div class="kicker">TRANSPARENT PROVENANCE</div>
+        <h1>Evidence <em>library.</em></h1>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; margin-bottom:20px;">
+
+        <button
+          id="build-vectors"
+          class="pill-action"
+          type="button"
+          style="border:0; background:#124b49; color:white; border-radius:12px; padding:12px 17px; font-weight:700; cursor:pointer;"
+        >
+          Build semantic index
+        </button>
+
+      </div>
+
+      <div id="sources" class="source-grid"></div>
+
+    </section>
+
+    <!-- AGENT ARCHITECTURE VIEW -->
+    <section id="architecture-view" class="view hidden">
+
+      <div class="page-head">
+
+        <div class="kicker">MODULAR AI FOR GOOD</div>
+
+        <h1>
+          How the agents <em>work together.</em>
+        </h1>
+
+        <p>
+          An LLM interprets intent, dynamically chooses specialists
+          and forms an evidence-backed plan. The Governance Agent
+          verifies the coordinated response. PDF passages are retrieved
+          with lexical FTS5 plus multilingual Qdrant semantic search
+          when indexed.
+        </p>
+
+      </div>
+
+      <div class="architecture-panel">
+
+        <div class="arch-step arch-start">
+          <small>INPUT</small>
+          <strong>ASHA worker asks a natural question</strong>
+          <span>English · Hindi · Telugu · Kannada · Voice or text</span>
+        </div>
+
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-step arch-router">
+          <small>SEMANTIC CONTROL</small>
+          <strong>LLM Orchestrator</strong>
+          <span>Scope gate → Intent understanding → Automatic agent plan</span>
+        </div>
+
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-columns">
+
+          <div>
+            <small>AGENT 01</small>
+            <strong>Maternal guidance</strong>
+            <span>Danger signs · routine ANC · referral</span>
+          </div>
+
+          <div>
+            <small>AGENT 02</small>
+            <strong>Benefits</strong>
+            <span>JSSK · financial support · transport</span>
+          </div>
+
+          <div>
+            <small>AGENT 03</small>
+            <strong>Follow-up</strong>
+            <span>High-risk pregnancy · missed visits</span>
+          </div>
+
+        </div>
+
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-step">
+          <small>REQUIRED GOVERNANCE</small>
+          <strong>Evidence review & answer synthesis</strong>
+          <span>Validate citations · state-specific scope · safe escalation</span>
+        </div>
+
+        <div class="arch-arrow">↓</div>
+
+        <div class="arch-step arch-start">
+          <small>OUTPUT</small>
+          <strong>One clear answer with official references</strong>
+          <span>
+            Reusability is architectural; other domains need new
+            documents, prompts, rules and evaluations.
+          </span>
+        </div>
+
+      </div>
+    </section>
+
+    <footer>
+      Arogya Guard AI Platform · Team Ritam
+      &nbsp;·&nbsp; Working Prototype · Synthetic Cases Only
+    </footer>
+
+  </main>
+</div>
+
+<div class="toast hidden" id="toast" role="alert"></div>
+
+<script defer src="/web/app.js"></script>
+
+</body>
+</html>
