@@ -1,6 +1,6 @@
 """Local, auditable RAG store: curated summaries and separately indexed government PDFs.
 
-No downloaded PDF is bundled or silently substituted. Source excerpts are limited
+Packaged local PDFs are preferred to remote downloads. Source excerpts are limited
 and can be traced to document ID and real PDF page when the source was ingested.
 """
 import hashlib
@@ -146,26 +146,54 @@ def index_local_pdf(doc_id: str, pdf_path: Path):
 
 
 def download_and_index(doc_id: str):
+    """Index a packaged official PDF first; download only when no local copy exists.
+
+    The evidence library previously ignored knowledge_base/official_pdfs and always
+    contacted NHM. This caused connection timeouts even when the PDF was already
+    present in the repository. Source ID remains fixed to the approved catalog.
+    """
     doc=CATALOG.get(doc_id)
-    if not doc or doc['kind']!='pdf':raise ValueError('Unknown approved government PDF')
-    output=(ROOT/'data'/'official_pdfs'/f'{doc_id}.pdf')
+    if not doc or doc['kind']!='pdf':
+        raise ValueError('Unknown approved government PDF')
+
+    filename=f'{doc_id}.pdf'
+    local_locations=(
+        ROOT/'knowledge_base'/'official_pdfs'/filename,
+        ROOT/'data'/'official_pdfs'/filename,
+    )
+    for pdf in local_locations:
+        if pdf.is_file():
+            if pdf.stat().st_size > 28*1024*1024:
+                raise ValueError(f'Local PDF is too large: {pdf}')
+            with pdf.open('rb') as file:
+                if file.read(5)!=b'%PDF-':
+                    raise ValueError(f'Local file is not a valid PDF: {pdf}')
+            return index_local_pdf(doc_id,pdf)
+
+    # Repositories without bundled PDFs can still sync from the official source.
+    output=ROOT/'data'/'official_pdfs'/filename
     output.parent.mkdir(parents=True,exist_ok=True)
-    with httpx.Client(timeout=50,follow_redirects=True,trust_env=True) as client:
-        with client.stream('GET',doc['url']) as resp:
-            resp.raise_for_status()
-            host=urlparse(str(resp.url)).hostname or ''
-            if not (host=='nhm.gov.in' or host.endswith('.nhm.gov.in')):
-                raise ValueError('Redirect left approved government domain')
-            n=0
-            with output.open('wb') as f:
-                for chunk in resp.iter_bytes():
-                    n+=len(chunk)
-                    if n>28*1024*1024:raise ValueError('PDF exceeds size limit')
-                    f.write(chunk)
-    with output.open('rb') as f:
-        if f.read(5)!=b'%PDF-':
-            output.unlink(missing_ok=True)
-            raise ValueError('Not a PDF response')
+    staged=output.with_suffix('.download')
+    try:
+        with httpx.Client(timeout=50,follow_redirects=True,trust_env=True) as client:
+            with client.stream('GET',doc['url']) as resp:
+                resp.raise_for_status()
+                host=urlparse(str(resp.url)).hostname or ''
+                if not (host=='nhm.gov.in' or host.endswith('.nhm.gov.in')):
+                    raise ValueError('Redirect left approved government domain')
+                n=0
+                with staged.open('wb') as f:
+                    for chunk in resp.iter_bytes():
+                        n+=len(chunk)
+                        if n>28*1024*1024:
+                            raise ValueError('PDF exceeds size limit')
+                        f.write(chunk)
+        with staged.open('rb') as f:
+            if f.read(5)!=b'%PDF-':
+                raise ValueError('Downloaded response is not a PDF')
+        staged.replace(output)
+    finally:
+        staged.unlink(missing_ok=True)
     return index_local_pdf(doc_id,output)
 
 
